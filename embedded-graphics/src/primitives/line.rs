@@ -107,6 +107,20 @@ impl Transform for Line {
     }
 }
 
+trait AnotherTransform {
+    fn translate_another(self, by: Point) -> Self;
+}
+
+impl AnotherTransform for Line {
+    /// Translate the line from its current position to a new position by (x, y) pixels.
+    fn translate_another(mut self, by: Point) -> Self {
+        self.start += by;
+        self.end += by;
+
+        self
+    }
+}
+
 impl<'a, C> IntoIterator for &'a Styled<Line, PrimitiveStyle<C>>
 where
     C: PixelColor,
@@ -222,6 +236,26 @@ mod tests {
         }
         // check that expected has no points left
         assert!(expected_iter.next().is_none())
+    }
+
+    #[test]
+    fn translate() {
+        let start = Point::new(10, 10);
+        let end = Point::new(20, 20);
+
+        let line: Line = Line::new(start, end).translate_another(Point::new(10, 10));
+
+        let line2 = Line::new(start, end)
+            .translate_another(Point::new(10, 10))
+            .into_styled(PrimitiveStyle::with_stroke(BinaryColor::On, 1));
+
+        let mut line3 = Line::new(start, end);
+
+        line3.translate_another(Point::new(10, 10));
+
+        assert_eq!(line.top_left(), start + Point::new(10, 10));
+        assert_eq!(line2.top_left(), start + Point::new(10, 10));
+        assert_eq!(line3.top_left(), start + Point::new(10, 10));
     }
 
     #[test]
